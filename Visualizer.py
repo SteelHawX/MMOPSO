@@ -10,6 +10,7 @@ import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import pyqtSlot
+import MMOSwarm as pso
 
 
 class App(QWidget):
@@ -19,8 +20,8 @@ class App(QWidget):
         self.title = 'PyQt5 button - pythonspot.com'
         self.left = 10
         self.top = 10
-        self.width = 320
-        self.height = 200
+        self.width = 500
+        self.height = 500
         self.m = PaintWidget(self)
         self.initUI()
 
@@ -30,7 +31,7 @@ class App(QWidget):
 
         button = QPushButton('PyQt5 button', self)
         button.setToolTip('This is an example button')
-        button.move(100, 70)
+        button.move(0, 0)
         button.clicked.connect(self.on_click)
 
 
@@ -41,16 +42,31 @@ class App(QWidget):
 
     @pyqtSlot()
     def on_click(self):
-        print('PyQt5 button click')
+        #print('PyQt5 button click')
         self.m.repaint()
 
 
 class PaintWidget(QWidget):
+    def __init__(self, QWidget):
+        super(PaintWidget, self).__init__()
+        self.pso = pso.MMOpso()
+        self.pso.populate()
+        print("fdf")
+
     def paintEvent(self, event):
         qp = QPainter(self)
         qp.setPen(Qt.black)
         qp.setBrush(Qt.red)
         size = self.size()
+        print("dcysfd")
+
+        #players = self.pso.get_players()
+        #self.pso.next_iteration()
+
+        #for player in players:
+        #    x = player.current['x'] * size.width()
+        #    y = player.current['y'] * size.height()
+        #    qp.drawEllipse(x, y, 5, 5)
 
         for i in range(1024):
             x = random.randint(1, size.width() - 1)

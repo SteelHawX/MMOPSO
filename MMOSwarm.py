@@ -1,5 +1,6 @@
 import random
 from enum import Enum
+import matplotlib.pyplot as plt
 
 
 def expression(values):
@@ -13,7 +14,7 @@ class Ranks(Enum):
     GOLD = 4
     SILVER = 5
     BRONZE = 6
-    UNSKILLED = 7
+    #UNSKILLED = 7
 
 
 class RankSize(Enum):
@@ -22,8 +23,8 @@ class RankSize(Enum):
     DIAMOND = pow(2, Ranks.DIAMOND.value)
     GOLD = pow(2, Ranks.GOLD.value)
     SILVER = pow(2, Ranks.SILVER.value)
-    BRONZE = pow(2, Ranks.BRONZE.value) * 3 / 4
-    UNSKILLED = pow(2, Ranks.BRONZE.value)
+    BRONZE = pow(2, Ranks.BRONZE.value)
+    #UNSKILLED = pow(2, Ranks.BRONZE.value)
 
 
 class Player:
@@ -47,7 +48,7 @@ class MMOpso:
     gauss_arg1 = 0
     gauss_arg2 = 0.5
 
-    def __init__(self):
+    def __init__(self, expr):
         self.player_base = list()
         self.player_base_size = pow(2, Ranks.BRONZE.value)
         self.best_found = dict()
@@ -56,7 +57,9 @@ class MMOpso:
         self.y_max_range = 10
         self.y_min_range = -10
         self.team_size = 5
-        self.expression = expression
+        self.expression = expr
+
+        self.best_found_log = list()
 
         self.x_width = self.x_max_range - self.x_min_range
         self.y_width = self.y_max_range - self.y_min_range
@@ -94,6 +97,7 @@ class MMOpso:
                     self.best_found['value'] = player.best['value']
                     self.best_found['x'] = player.best['x']
                     self.best_found['y'] = player.best['y']
+        self.best_found_log.append(self.best_found['value'])
 
     def _sort(self):
         self.player_base[0 : RankSize.SILVER.value].sort()
@@ -182,15 +186,14 @@ class MMOpso:
         self._move_players()
         self._update_values()
 
+    def plot(self, start_idx = 0, end_idx = -1):
+        plt.plot(self.best_found_log[start_idx : end_idx])
+        plt.xlabel("iteration")
+        plt.ylabel("best found")
+        plt.show()
 
-    #TODO
-    # match tries to find ppl on the same rank first. if not possible tries other ranks. create lists of not chosen
-    # players. One list per rank. delete player that is chosen.
-
-
-
-
-
+    def get_players(self):
+        return self.player_base
 
     def _match_and_move_players(self):
         players_to_pick = [1] * Ranks.SILVER.value
@@ -207,9 +210,10 @@ class MMOpso:
 
 
 if __name__ == '__main__':
-    pso = MMOpso()
+    pso = MMOpso(expression)
     pso.populate()
     for i in range(100):
         pso.next_iteration()
     pso.print_best()
+    pso.plot(start_idx=0)
 
