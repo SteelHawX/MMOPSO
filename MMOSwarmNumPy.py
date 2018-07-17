@@ -92,13 +92,34 @@ class MMOpso:
             self.best_found = np.copy(best_in_current)
         self._append_best_found_log()
 
+    def _update_values(self):
+        for player in self.player_base_current.transpose():
+            player[-1] = expression(player[:-1])
+
+        for index in range(self.player_base_size):
+            if self._is_better(self.player_base_current[-1][index], self.player_base_best[-1][index]):
+                #print((self.player_base_current[-1][index], self.player_base_best[-1][index]))
+                self.player_base_best.transpose()[index] = np.copy(self.player_base_current.transpose()[index])
+
+
     def _append_best_found_log(self):
         self.best_found_log.append(self.best_found)
     
     def _sort(self):
-        #probably concatenate current and best -> sort -> split
+        best_n_current = np.concatenate((self.player_base_best, self.player_base_current), axis=0).transpose()
+        print(self.player_base_best[-1])
+        print(self.player_base_best[0])
+        best_n_current = best_n_current[best_n_current[:,-1].argsort()]
+        split = np.array_split(best_n_current, 2, axis=1)
+        self.player_base_best = split[0].transpose()
+        self.player_base_current = split[1].transpose()
+        print(self.player_base_best[-1])
+        print(self.player_base_best[0])
+
 
 
 
 if __name__ == '__main__':
     pso = MMOpso(expression, 10, -10, 10)
+    pso._update_values()
+    pso._sort()
