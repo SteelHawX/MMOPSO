@@ -3,6 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from enum import Enum
 
+np.random.seed(1)
+
 def expression(values):
     result = 0
     for x in values:
@@ -225,15 +227,24 @@ class MMOpso:
         mod = np.random.normal(self.gauss_arg1, self.gauss_arg2, self.player_dim)
         #mod = np.full(self.player_dim, 0.5)
         mod = np.multiply(mod, 2)
+        print("Move by vector")
+        print(mod)
         mod[-1] = 0
+        print(f'Raw vector: {vector}')
         vector = np.multiply(vector, mod)
+        print(f'Modded vector: {vector}')
+        print(f'Raw player: {player}')
         player = np.add(player, vector)
+        print(f'Modded player: {player}')
         return player
         
 
     def _master_move(self, player, index):
+        #print(f'player: {player}')
+        #print(f'player2: {player}')
         vector = np.subtract(self.player_base_best.transpose()[index], player)
         player = self._move_by_vector(player, vector)
+        print(player)
         return player
 
     def _bronze_move(self, player):
@@ -254,23 +265,23 @@ class MMOpso:
             
 
     def next_iteration(self):
-        # print("NOT SORTED")
-        # print(self.current_positions())
-        # print(self.current_values())
+        #print("NOT SORTED")
+        #print(self.current_positions())
+        #print(self.current_values())
         self._sort()
-        # print("SORTED")
-        # print(self.best_positions())
-        # print(self.best_values())
+        #print("SORTED")
+        #print(self.best_positions())
+        #print(self.best_values())
         self._move_players()
-        # print("MOVED")
-        # print(self.current_positions())
+        #print("MOVED")
+        #print(self.current_positions())
         self._update_values()
-        # print("UPDATED")
-        # print(self.current_values())
-        # print(self.best_values())
+        #print("UPDATED")
+        #print(self.current_values())
+        #print(self.best_values())
         self._find_best()
         self._append_best_found_log()
-        # print(self.best_values())
+        #print(self.best_values())
 
     def plot(self, start_idx = 0, end_idx = -1):
         best_value_found_log = list()
@@ -286,10 +297,10 @@ class MMOpso:
 
 
 if __name__ == '__main__':
-    pso = MMOpso(expression, 10, -10, 10)
+    pso = MMOpso(expression, 2, -10, 10)
     for i in range(3):
         #print(pso.best_values())
         print(pso.player_base_current.transpose()[0])
         pso.next_iteration()
-    pso.plot()
+    #pso.plot()
 

@@ -212,8 +212,8 @@ class MMOpso:
 if __name__ == '__main__':
     pso = MMOpso(expression)
     pso.populate()
-    for i in range(100):
+    for i in range(10000):
         pso.next_iteration()
     pso.print_best()
-    pso.plot(start_idx=0)
+    pso.plot(start_idx=100)
 
