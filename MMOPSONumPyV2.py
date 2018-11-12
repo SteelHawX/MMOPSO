@@ -38,6 +38,7 @@ class MMOpso:
 		self.team_size = team_size
 		self.expression = expression
 
+		# represents matrix where first index is the index of player and the second is the dimension ( in case of the last value its expression value)
 		self.player_base_current = np.empty((self.player_base_size, self.dimension+1))
 		self.player_base_best = np.copy(self.player_base_current)
 		self.min_range = np.full(dimension, min_range)
@@ -56,6 +57,9 @@ class MMOpso:
 
 		self._initialize_values()
 		#self._sort()
+
+	def _transpose_player_base(self):
+		return self.player_base_current.transpose()
 
 	def best_values(self):
 		print_text = "BEST VALUES\n"
@@ -95,12 +99,53 @@ class MMOpso:
 			index += 1
 		return print_text
 
+	def _append_best_found_log(self):
+		self.best_found_log.append(self.best_found)
+
 	def _initialize_values(self):
 		# initialize CURRENT positions of every player
-		self.player_base_current[:][:-1] = (self.range_width.dot(np.random.rand(self.player_base_size, self.dimension)) + self.min_range)
+		t_player_base = self._transpose_player_base()
+		print(np.shape(t_player_base[:][:-1]))
+		t_player_base[:][:-1] = np.random.rand(self.dimension, self.player_base_size).dot(self.range_width)
+		t_player_base[:][:-1] = (t_player_base[:][:-1].transpose() + self.min_range).transpose()
+
+		# initialize CURRENT values of every player
+		for player in self.player_base_current:
+			player[-1] = expression(player[:-1])
+
+		# initialize BEST positions and values; in t(0) it equals CURRENT
+		self.player_base_best = np.copy(self.player_base_current)
+
+		# initalize BEST PLAYER (positions + value)
+		index_of_best = self.return_best(t_player_base[-1])
+		self.best_found = np.copy(self.player_base_best[index_of_best])
+		self._append_best_found_log()
+
+	def _find_best(self):
+		t_player_base = self._transpose_player_base()
+		index_of_best = self.return_best(t_player_base[-1])
+		best_in_current= np.copy(self.player_base_best[index_of_best])
+		if self._is_better(best_in_current[-1], self.best_found[-1]):
+			self.best_found = np.copy(best_in_current)
+		self._append_best_found_log()
+
+	def _update_values(self):
+		for player in self.player_base_current:
+			player[-1] = expression(player[:-1])
+
+		for index in range(self.player_base_size):
+			#print(index)
+			if self._is_better(self.player_base_current[index][-1], self.player_base_best[index][-1]):
+				#print(self.player_base_current[index])
+				self.player_base_best[index] = np.copy(self.player_base_current[index])
+
+
+
 
 
 if __name__ == '__main__':
 	pso = MMOpso(expression, 2, -10, 10)
 	print(pso.current_positions())
+	print(pso.current_values())
+	print(pso._update_values())
 
