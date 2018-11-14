@@ -139,13 +139,22 @@ class MMOpso:
 				#print(self.player_base_current[index])
 				self.player_base_best[index] = np.copy(self.player_base_current[index])
 
+	def _append_best_found_log(self):
+		self.best_found_log.append(self.best_found)
 
-
-
+	def _sort(self):
+		best_current_concat = np.concatenate((self.player_base_current, self.player_base_best), axis=1)
+		best_current_concat = best_current_concat[best_current_concat[:,-1].argsort()]
+		best_current_split = np.array_split(best_current_concat, 2, axis = 1)
+		self.player_base_current = best_current_split[0]
+		self.player_base_best = best_current_split[1]
 
 if __name__ == '__main__':
 	pso = MMOpso(expression, 2, -10, 10)
+	#print(pso.current_positions())
+	#print(pso.current_values())
+	pso._update_values()
+	pso._sort()
 	print(pso.current_positions())
 	print(pso.current_values())
-	print(pso._update_values())
 
