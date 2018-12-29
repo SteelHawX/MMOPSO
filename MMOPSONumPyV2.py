@@ -149,12 +149,97 @@ class MMOpso:
 		self.player_base_current = best_current_split[0]
 		self.player_base_best = best_current_split[1]
 
+	def _index_shift(self, players_chosen, index) -> int:
+
+		counter = 0
+		print(f"Table: {players_chosen}")
+		print(f"Index: {index}")
+		for player in players_chosen[:index]:
+			if player == 1:
+				counter += 1
+		print(f"After first part {counter}")
+		if(players_chosen[index] == 1):
+			idx = index + 1
+			while idx < len(players_chosen) and players_chosen[idx] == 1:
+				counter += 1
+				idx += 1
+			print(f"After second part {counter}")
+		print(f"Shift: {counter}")
+		return int(counter)
+
+	def _index_shift_v2(self, players_chosen, index) -> int:
+		zero_counter = -1
+		idx = 0
+		#print(f"Table: {players_chosen}")
+		#print(f"Index: {index}")
+		while zero_counter < index and idx < len(players_chosen):
+			if players_chosen[idx] == 0:
+				zero_counter += 1
+			idx += 1
+		idx -= 1
+		#print(f"Shift: {idx}")
+		return idx
+
+
+	def _matchmaking(self):
+		#playerbase should be sorted
+
+		offset = [RankSize.MASTER.value, RankSize.DIAMOND.value, RankSize.GOLD.value, RankSize.SILVER.value]
+		diamond_players = self.player_base_current[RankSize.MASTER.value : RankSize.DIAMOND.value]
+		gold_players = self.player_base_current[RankSize.DIAMOND.value : RankSize.GOLD.value]
+		silver_players = self.player_base_current[RankSize.GOLD.value : RankSize.SILVER.value]
+		players_to_match = np.copy([diamond_players, gold_players, silver_players])
+
+		rank = 0 # first index of players_to_match
+		ready_teams_counter = 0
+		ready_teams_max = int((offset[-1] - offset[0])/self.team_size)
+		ready_teams = np.empty((ready_teams_max, self.team_size))
+		max_rank = len(players_to_match)
+		players_chosen = [0] * (offset[rank + 1] - offset[rank])
+		while rank < max_rank:
+			draft_team_size = 0
+			draft_team = np.zeros(self.team_size)
+			#print(players_chosen)
+			while draft_team_size < self.team_size:
+				#print('----')
+				#if rank >= max_rank or len(players_to_match[rank]) == 0:
+				#	break
+				#elif len(players_to_match[rank]) == 0:
+
+				player_chosen_index = np.random.randint(0, len(players_to_match[rank]))
+
+				players_to_match[rank] = np.delete(players_to_match[rank], player_chosen_index, axis=0)
+				player_chosen_index = self._index_shift_v2(players_chosen, player_chosen_index)
+				#print(f"pc_idx: {player_chosen_index}")
+				players_chosen[player_chosen_index] = 1
+
+				draft_team[draft_team_size] = offset[rank] + player_chosen_index
+				draft_team_size += 1
+
+				if len(players_to_match[rank]) == 0:
+					rank += 1
+					if rank < max_rank:
+						players_chosen = [0] * (offset[rank + 1] - offset[rank])
+						#print("reset")
+					else:
+						break
+			if draft_team_size == self.team_size:
+				ready_teams[ready_teams_counter] = draft_team
+		return ready_teams
+
+
+
+
+
 if __name__ == '__main__':
 	pso = MMOpso(expression, 2, -10, 10)
 	#print(pso.current_positions())
 	#print(pso.current_values())
 	pso._update_values()
 	pso._sort()
-	print(pso.current_positions())
-	print(pso.current_values())
+	teams = pso._matchmaking()
+	print('--------')
+	print(teams)
+	#print(pso.current_positions())
+
 
