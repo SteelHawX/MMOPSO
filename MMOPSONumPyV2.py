@@ -5,10 +5,21 @@ from enum import Enum
 
 np.random.seed(1)
 
-def expression(values):
+def simple(values):
 	result = 0
 	for x in values:
 		result += x**2
+	return result
+
+def rosenbrock(values):
+	result = 0
+	counter = 0
+	prev_x = 0
+	for x in values:
+		if counter != 0:
+			result += (1 - prev_x)*(1 - prev_x) + 100*(x - prev_x*prev_x)*(x - prev_x*prev_x)
+		prev_x = x
+		counter += 1
 	return result
 
 
@@ -32,7 +43,7 @@ class MMOpso:
 	gauss_arg1 = 0
 	gauss_arg2 = 0.5
 
-	def __init__(self, expression, dimension, min_range, max_range, find_min = True, player_base_size = RankSize.SILVER.value, team_size = 5):
+	def __init__(self, expression, dimension, min_range, max_range, find_min = True, player_base_size = RankSize.BRONZE.value, team_size = 5):
 		self.player_base_size = player_base_size
 		self.dimension = dimension
 		self.team_size = team_size
@@ -111,7 +122,7 @@ class MMOpso:
 
 		# initialize CURRENT values of every player
 		for player in self.player_base_current:
-			player[-1] = expression(player[:-1])
+			player[-1] = self.expression(player[:-1])
 
 		# initialize BEST positions and values; in t(0) it equals CURRENT
 		self.player_base_best = np.copy(self.player_base_current)
@@ -131,7 +142,7 @@ class MMOpso:
 
 	def _update_values(self):
 		for player in self.player_base_current:
-			player[-1] = expression(player[:-1])
+			player[-1] = self.expression(player[:-1])
 
 		for index in range(self.player_base_size):
 			#print(index)
@@ -225,21 +236,77 @@ class MMOpso:
 						break
 			if draft_team_size == self.team_size:
 				ready_teams[ready_teams_counter] = draft_team
+				ready_teams_counter += 1
 		return ready_teams
 
+	def _move_by_vector(self, player_index, vector):
+		#print(vector)
+		mod = np.random.normal(self.gauss_arg1, self.gauss_arg2, self.dimension + 1)
+		mod = np.multiply(mod, 2)
+		mod[-1] = 0
+		#print(mod)
+		vector = np.multiply(vector, mod)
+		#print(self.player_base_current[player_index])
+		#print(vector)
+		#print(vector)
+		self.player_base_current[player_index] = np.add(self.player_base_current[player_index], vector)
 
+	def _move_players(self):
+		for index in range(self.player_base_size):
+			if index < RankSize.GRANDMASTER.value:
+				self._master_move(index, index)
+			elif index < RankSize.MASTER.value:
+				self._master_move(index, index)
+			elif RankSize.SILVER.value <= index < RankSize.BRONZE.value:
+				self._bronze_move(index)
+		teams = self._matchmaking()
+		for index in range(len(teams)):
+			self._team_move(teams[index])
 
+	def _team_move(self, team):
+		#print(team)
+		#print('-')
+		best = self.player_base_current[int(team[0])]
+		best_index = int(team[0])
+		#print(best)
+		for player_index in team:
+			#print(self.player_base_current[int(player_index)])
+			if self._is_better(self.player_base_current[int(player_index)][-1], best[-1]):
+				#print('New best')
+				best = self.player_base_current[int(player_index)]
+				best_index = int(player_index)
+		for player_index in team:
+			#print('Before')
+			#print( self.player_base_current[int(player_index)])
+			vector = np.subtract(best, self.player_base_current[int(player_index)])
+			self._move_by_vector(int(player_index), vector)
+
+	def _master_move(self, player_index, master_index):
+		if player_index == master_index:
+			self._self_move(player_index)
+		vector = np.subtract((self.player_base_current[master_index]), self.player_base_current[player_index])
+		self._move_by_vector(player_index, vector)
+
+	def _bronze_move(self, player_index):
+		self._master_move(player_index, 0)
+
+	def _self_move(self, player_index):
+		vector = np.subtract(self.player_base_best[player_index], self.player_base_current[player_index])
+		self._move_by_vector(player_index, vector)
+
+	def next_iteration(self):
+		self._sort()
+		self._move_players()
+		self._update_values()
+		self._find_best()
+		self._append_best_found_log()
 
 
 if __name__ == '__main__':
-	pso = MMOpso(expression, 2, -10, 10)
-	#print(pso.current_positions())
-	#print(pso.current_values())
-	pso._update_values()
-	pso._sort()
-	teams = pso._matchmaking()
-	print('--------')
-	print(teams)
-	#print(pso.current_positions())
+	pso = MMOpso(rosenbrock, 10, -10, 10)
+	for i in range(100000):
+		pso.next_iteration()
+	print(pso.best_found_log[-1])
+	#print(rosenbrock([0,0,0,0,0,0,0,0,0,0]))
 
 
