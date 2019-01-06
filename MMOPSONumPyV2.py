@@ -40,7 +40,7 @@ class RankSize(Enum):
 	BRONZE = np.power(2, Ranks.BRONZE.value)
 
 class MMOpso:
-	gauss_arg1 = 0
+	gauss_arg1 = 0.5
 	gauss_arg2 = 0.5
 
 	def __init__(self, expression, dimension, min_range, max_range, find_min = True, player_base_size = RankSize.BRONZE.value, team_size = 5):
