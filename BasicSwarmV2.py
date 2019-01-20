@@ -44,8 +44,9 @@ class BasicPSO:
 
         #print(self.particles_best)
 
-
         index_of_best = self.return_best(t_particles[-1])
+        # print(t_particles[-1])
+        # print(self.particles_current[index_of_best])
         self.best_found = np.copy(self.particles_best[index_of_best])
         self.best_found_log.append(self.best_found)
         #print(self.best_found_log)
@@ -54,9 +55,12 @@ class BasicPSO:
         t_particles = self.particles_current.transpose()
         index_of_best = self.return_best(t_particles[-1])
         currently_best = np.copy(self.particles_best[index_of_best])
+        #print(currently_best)
         if self._is_better(currently_best[-1], self.best_found[-1]):
+            #print(self.best_found)
             self.best_found = np.copy(currently_best)
         self.best_found_log.append(self.best_found)
+        #print(self.best_found_log[-1])
 
     def _update_values(self):
         for particle in self.particles_current:
@@ -69,10 +73,11 @@ class BasicPSO:
     def _update_velocity(self):
         #print(self.velocity)
         self.velocity *= self.velocity_mult
-        #print(self.velocity)
-        diff = self.particles_best.transpose()[:-1] - self.particles_current.transpose()[:1]
-        #
         #print('---------------')
+        #print(self.velocity)
+        diff = (self.particles_best - self.particles_current).transpose()[:-1]
+        #
+
         best_array = self.best_found[:-1]
         for i in range(self.size - 1):
             best_array = np.vstack((best_array, self.best_found[:-1]))
@@ -100,11 +105,11 @@ class BasicPSO:
         print(self.particles_best)
 
 if __name__ == '__main__':
-    pso = BasicPSO(tstfn.basic02, 10, -10, 10)
+    pso = BasicPSO(tstfn.basic01, 10, -10, 10)
     for i in range(10000):
-        pso.next_iteration()
-        if i < 20:
-            print(pso.best_found)
+       pso.next_iteration()
+       if i < 20:
+           print(pso.best_found)
     print('---------')
     print(pso.best_found_log[1][-1])
     print(pso.best_found_log[10][-1])
