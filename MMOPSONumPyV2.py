@@ -3,7 +3,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from enum import Enum
 
-np.random.seed(1)
 
 def simple(values):
 	result = 0
@@ -294,6 +293,24 @@ class MMOpso:
 		vector = np.subtract(self.player_base_best[player_index], self.player_base_current[player_index])
 		self._move_by_vector(player_index, vector)
 
+	def _visualise(self):
+		for i in range(self.player_base_size):
+			if i < RankSize.GRANDMASTER.value:
+				plt.scatter(self.player_base_current[i][0], self.player_base_current[i][1], color= 'black')
+			elif i < RankSize.MASTER.value:
+				plt.scatter(self.player_base_current[i][0], self.player_base_current[i][1], color= 'purple')
+			elif i < RankSize.DIAMOND.value:
+				plt.scatter(self.player_base_current[i][0], self.player_base_current[i][1], color='blue')
+			elif i < RankSize.GOLD.value:
+				plt.scatter(self.player_base_current[i][0], self.player_base_current[i][1], color='yellow')
+			elif i < RankSize.SILVER.value:
+				plt.scatter(self.player_base_current[i][0], self.player_base_current[i][1], color='gray')
+			else:
+				plt.scatter(self.player_base_current[i][0], self.player_base_current[i][1], color='green')
+		plt.xlim(-10, 10)
+		plt.ylim(-10, 10)
+		plt.show()
+
 	def next_iteration(self):
 		self._sort()
 		self._move_players()
@@ -301,12 +318,25 @@ class MMOpso:
 		self._find_best()
 		self._append_best_found_log()
 
+	def next_iteration_visualised(self):
+		self._sort()
+		self._visualise()
+		self._move_players()
+		self._update_values()
+		self._find_best()
+		self._append_best_found_log()
+		self._visualise()
+
 
 if __name__ == '__main__':
-	pso = MMOpso(rosenbrock, 10, -10, 10)
-	for i in range(100000):
-		pso.next_iteration()
-	print(pso.best_found_log[-1])
+	#pso = MMOpso(rosenbrock, 10, -10, 10)
+	#for i in range(100000):
+	#	pso.next_iteration()
+	#print(pso.best_found_log[-1])
 	#print(rosenbrock([0,0,0,0,0,0,0,0,0,0]))
+	#pso = MMOpso()
+	pso = MMOpso(simple, 2, -10, 10)
+	pso.next_iteration_visualised()
+	pso.next_iteration_visualised()
 
 

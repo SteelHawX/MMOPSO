@@ -1,13 +1,13 @@
 import numpy as np
 import MMOPSONumPyV2 as mmo
+import TestFunctions as tstfn
 
-np.random.seed(1)
 
 class BasicPSO:
-    def __init__(self, expression, dimension, min_bound, max_bound):
+    def __init__(self, expression, dimension, min_bound, max_bound, size=64):
         self.expression = expression
         self.dimension = dimension
-        self.size = pow(2, 6)
+        self.size = size
         self.particle_bias = 0.5
         self.global_bias = 0.5
         self.velocity_mult = 0.5
@@ -100,9 +100,20 @@ class BasicPSO:
         print(self.particles_best)
 
 if __name__ == '__main__':
-    pso = BasicPSO(mmo.simple, 2, -10, 10)
-    for i in range(1000):
+    pso = BasicPSO(tstfn.basic02, 10, -10, 10)
+    for i in range(10000):
         pso.next_iteration()
-        if not i%50:
-            print(pso.best_found_log[-1])
+        if i < 20:
+            print(pso.best_found)
+    print('---------')
+    print(pso.best_found_log[1][-1])
+    print(pso.best_found_log[10][-1])
+    print(pso.best_found_log[100][-1])
+    print(pso.best_found_log[200][-1])
+    print(pso.best_found_log[300][-1])
+    print(pso.best_found_log[500][-1])
+    print(pso.best_found_log[1000][-1])
+    print(pso.best_found_log[5000][-1])
+    print(pso.best_found_log[9999][-1])
+
 

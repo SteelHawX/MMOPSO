@@ -131,7 +131,7 @@ def test04_D30(X):
 def basic05(x):
     sigma = 0
     for i in range(len(x)):
-        sigma +=x[i]*x[i] - 10*math.cos(2*math.pi*x) + 10
+        sigma +=x[i]*x[i] - 10*math.cos(2*math.pi*x[i]) + 10
     return sigma
 
 def test05_D10(X):
@@ -153,6 +153,66 @@ def test05_D30(X):
         path = 'utilities/shift_data_5.txt'
         test05_D30.O = getMatrixFromFile(path)[0:30]
         return basic05(np.dot(test05_D30.M, (X - test05_D30.O)))
+
+#Expanded Schaffer’s F6 Function
+def basic06_subfunction(x, y):
+    upper = pow(math.sin(math.sqrt(x*x + y*y)), 2) - 0.5
+    lower = pow(1 + 0.001*(x*x + y*y), 2)
+    return 0.5 + upper/lower
+
+def basic06(x):
+    result = 0
+    for i in range(len(x)-1):
+        result += basic06_subfunction(x[i], x[i+1])
+    result += basic06_subfunction(x[-1], x[1])
+    return result
+
+def test06_D10(X):
+    try:
+        return basic06(np.dot(test06_D10.M, (X - test06_D10.O)))
+    except AttributeError:
+        path = 'utilities/M_6_D10.txt'
+        test06_D10.M = getMatrixFromFile(path)
+        path = 'utilities/shift_data_6.txt'
+        test06_D10.O = getMatrixFromFile(path)[0:10]
+        return basic06(np.dot(test06_D10.M, (X - test06_D10.O)))
+
+def test06_D30(X):
+    try:
+        return basic06(np.dot(test06_D30.M, (X - test06_D30.O)))
+    except AttributeError:
+        path = 'utilities/M_6_D30.txt'
+        test06_D30.M = getMatrixFromFile(path)
+        path = 'utilities/shift_data_6.txt'
+        test06_D30.O = getMatrixFromFile(path)[0:30]
+        return basic06(np.dot(test06_D30.M, (X - test06_D30.O)))
+
+#Discus Function
+def basic07(x):
+    sigma = 0
+    for i in range(1, len(x)):
+        sigma += x[i]*x[i]
+    return pow(10,6)*x[0]*x[0]+sigma
+
+def test07_D10(X):
+    try:
+        return basic07(np.dot(test07_D10.M, (X - test07_D10.O)))
+    except AttributeError:
+        path = 'utilities/M_7_D10.txt'
+        test07_D10.M = getMatrixFromFile(path)
+        path = 'utilities/shift_data_7.txt'
+        test07_D10.O = getMatrixFromFile(path)[0:10]
+        return basic07(np.dot(test07_D10.M, (X - test07_D10.O)))
+
+def test07_D30(X):
+    try:
+        return basic07(np.dot(test07_D30.M, (X - test07_D30.O)))
+    except AttributeError:
+        path = 'utilities/M_7_D30.txt'
+        test07_D30.M = getMatrixFromFile(path)
+        path = 'utilities/shift_data_7.txt'
+        test07_D30.O = getMatrixFromFile(path)[0:30]
+        return basic07(np.dot(test07_D30.M, (X - test07_D30.O)))
 
 if __name__ == '__main__':
     #print(basic01([0,0,0,0,0]))
