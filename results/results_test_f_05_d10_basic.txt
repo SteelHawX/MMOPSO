@@ -2,3 +2,4 @@ Best is: 4302575843.95067
 Worst is: 4302575843.95067
 Mean is: 4302575843.95067
 Median is: 4302575843.95067
+Standard deviation is: 0.0

@@ -23,6 +23,7 @@ if __name__ == '__main__':
                         res.write(f'Worst is: {numbers[-1]}\n')
                         res.write(f'Mean is: {stat.mean(numbers)}\n')
                         res.write(f'Median is: {stat.median(numbers)}\n')
+                        res.write(f'Standard deviation is: {stat.stdev(numbers)}')
 
 
 
