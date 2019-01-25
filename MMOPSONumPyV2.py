@@ -66,7 +66,6 @@ class MMOpso:
 		self.range_width = np.array(max_range - min_range)
 
 		self._initialize_values()
-		#self._sort()
 
 	def _transpose_player_base(self):
 		return self.player_base_current.transpose()
@@ -144,9 +143,7 @@ class MMOpso:
 			player[-1] = self.expression(player[:-1])
 
 		for index in range(self.player_base_size):
-			#print(index)
 			if self._is_better(self.player_base_current[index][-1], self.player_base_best[index][-1]):
-				#print(self.player_base_current[index])
 				self.player_base_best[index] = np.copy(self.player_base_current[index])
 
 	def _append_best_found_log(self):
@@ -180,14 +177,11 @@ class MMOpso:
 	def _index_shift_v2(self, players_chosen, index) -> int:
 		zero_counter = -1
 		idx = 0
-		#print(f"Table: {players_chosen}")
-		#print(f"Index: {index}")
 		while zero_counter < index and idx < len(players_chosen):
 			if players_chosen[idx] == 0:
 				zero_counter += 1
 			idx += 1
 		idx -= 1
-		#print(f"Shift: {idx}")
 		return idx
 
 
@@ -209,18 +203,11 @@ class MMOpso:
 		while rank < max_rank:
 			draft_team_size = 0
 			draft_team = np.zeros(self.team_size)
-			#print(players_chosen)
 			while draft_team_size < self.team_size:
-				#print('----')
-				#if rank >= max_rank or len(players_to_match[rank]) == 0:
-				#	break
-				#elif len(players_to_match[rank]) == 0:
-
 				player_chosen_index = np.random.randint(0, len(players_to_match[rank]))
 
 				players_to_match[rank] = np.delete(players_to_match[rank], player_chosen_index, axis=0)
 				player_chosen_index = self._index_shift_v2(players_chosen, player_chosen_index)
-				#print(f"pc_idx: {player_chosen_index}")
 				players_chosen[player_chosen_index] = 1
 
 				draft_team[draft_team_size] = offset[rank] + player_chosen_index
@@ -230,7 +217,6 @@ class MMOpso:
 					rank += 1
 					if rank < max_rank:
 						players_chosen = [0] * (offset[rank + 1] - offset[rank])
-						#print("reset")
 					else:
 						break
 			if draft_team_size == self.team_size:
@@ -239,15 +225,10 @@ class MMOpso:
 		return ready_teams
 
 	def _move_by_vector(self, player_index, vector):
-		#print(vector)
 		mod = np.random.normal(self.gauss_arg1, self.gauss_arg2, self.dimension + 1)
 		mod = np.multiply(mod, 2)
 		mod[-1] = 0
-		#print(mod)
 		vector = np.multiply(vector, mod)
-		#print(self.player_base_current[player_index])
-		#print(vector)
-		#print(vector)
 		self.player_base_current[player_index] = np.add(self.player_base_current[player_index], vector)
 
 	def _move_players(self):
@@ -263,20 +244,13 @@ class MMOpso:
 			self._team_move(teams[index])
 
 	def _team_move(self, team):
-		#print(team)
-		#print('-')
 		best = self.player_base_current[int(team[0])]
 		best_index = int(team[0])
-		#print(best)
 		for player_index in team:
-			#print(self.player_base_current[int(player_index)])
 			if self._is_better(self.player_base_current[int(player_index)][-1], best[-1]):
-				#print('New best')
 				best = self.player_base_current[int(player_index)]
 				best_index = int(player_index)
 		for player_index in team:
-			#print('Before')
-			#print( self.player_base_current[int(player_index)])
 			vector = np.subtract(best, self.player_base_current[int(player_index)])
 			self._move_by_vector(int(player_index), vector)
 
@@ -327,16 +301,5 @@ class MMOpso:
 		self._append_best_found_log()
 		self._visualise()
 
-
-if __name__ == '__main__':
-	#pso = MMOpso(rosenbrock, 10, -10, 10)
-	#for i in range(100000):
-	#	pso.next_iteration()
-	#print(pso.best_found_log[-1])
-	#print(rosenbrock([0,0,0,0,0,0,0,0,0,0]))
-	#pso = MMOpso()
-	pso = MMOpso(simple, 2, -10, 10)
-	pso.next_iteration_visualised()
-	pso.next_iteration_visualised()
 
 

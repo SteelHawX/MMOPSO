@@ -2,6 +2,7 @@ import TestFunctions as tf
 import MMOPSONumPyV2 as mpso
 import BasicSwarmV2 as bpso
 import matplotlib.pyplot as plt
+import time
 
 def batch01_mmopso():
     FES = 100000
@@ -535,6 +536,19 @@ def batch02_basicpso():
         f.write('\n')
     f.close()
 
+def time_elapsed():
+    start_time = time.time()
+    pso = bpso.BasicPSO(tf.test01_D10, 10, -100, 100)
+    for i in range(100000):
+        pso.next_iteration()
+    print('BasicPSO - time elapsed: ', time.time() - start_time)
+    start_time = time.time()
+    mmopso = mpso.MMOpso(tf.test01_D10, 10, -100, 100)
+    for i in range(100000):
+        mmopso.next_iteration()
+    print('MMOPSO - time elapsed: ', time.time() - start_time)
+
+
 def graphic_sample_basicpso():
 	pso = bpso.BasicPSO(mpso.simple, 2, -10, 10, 20)
 	for it in range(100):
@@ -556,4 +570,5 @@ if __name__ == '__main__':
     #batch01_basicpso()
     #batch02_mmopso()
     #batch02_basicpso()
-    graphic_sample_basicpso()
+    #graphic_sample_basicpso()
+    time_elapsed()
